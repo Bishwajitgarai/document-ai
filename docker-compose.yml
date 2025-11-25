@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  fastapi-rag:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag-fastapi
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./chroma_data:/app/chroma_data
+      - ./uploads:/app/uploads
+    environment:
+      # Add your Google API key for Gemini LLM functionality
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - CHROMA_PERSIST_DIRECTORY=/app/chroma_data
+      - UPLOAD_DIRECTORY=/app/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
